@@ -32,6 +32,17 @@ console.log(result)
 error: function(error) {
 	alert(error)
 }
-});
+})
+
+Parse.Cloud.run('sendEmailToUser', {}, {
+success: function(result) {
+	//result is 'Hello world!'
+console.log(result)
+	
+ },
+error: function(error) {
+	alert(error)
+}
+})
 		
 })
