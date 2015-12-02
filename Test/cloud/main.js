@@ -5,15 +5,13 @@ moment.tz.add(require('cloud/moment-timezone-with-data.js'));
 // Add (Date/Time) Guatemala country
 moment.tz.add('America/Guatemala|LMT CST CDT|62.4 60 50|0121212121|-24KhV.U 2efXV.U An0 mtd0 Nz0 ifB0 17b0 zDB0 11z0');
 
-function Cualquiera(horaFin,idPromo,horaActual) {
+function changeStatus(endHour,idPromo,actualHourCST) {
 	var hoursClass = new Parse.Object.extend("Hours");
 	var hoursData = new hoursClass();
-	// Difference between the time zone Guatemala City and meridian Greenwich(.utcOffset('-06:00'))
-	var horaFinUno = new Date(horaFin);
-	var horaActualUno = new Date(horaActual);
-	console.log(horaActualUno + "   Hora!!! ///////////////");
-	if(horaActualUno > horaFin){
-		console.log("Entro!!! ///////////////");
+	var endDatePromotion = new Date(endHour);
+	var actualHourGuatemala = new Date(actualHourCST);
+	// Data validation (if actualHourGuatemala is major a endDatePromotion return false in status col in parse)
+	if(actualHourGuatemala > endDatePromotion){
 		hoursData.id = idPromo;		
 		hoursData.set("Valid",false);
 		hoursData.save();
@@ -21,16 +19,17 @@ function Cualquiera(horaFin,idPromo,horaActual) {
 };
 
 Parse.Cloud.define("guatemalaDate", function (request, response) {
-	
-
-	/* ---------------------------------------------------------- */
+	// Connection with Hours Class for objectId
 	var query = new Parse.Query('Hours');
-	var actualHora = moment().tz("America/Guatemala").format('LLL');
+	// Take the Date of Guatemala City Country in long date
+	var actualHour = moment().tz("America/Guatemala").format('LLL');
 	query.equalTo("Valid", true);
+	// Find the endDate in Hour class
 	query.find({
 		success: function(results) {
 			for (i in results) {
-				Cualquiera(results[i].attributes.FinPromotion,results[i].id,actualHora);
+				// Take the actualHour variable for send to changeStatus function
+				changeStatus(results[i].attributes.FinPromotion,results[i].id,actualHour);
 			};
 			response.success("Realizado");
 		},
@@ -38,6 +37,4 @@ Parse.Cloud.define("guatemalaDate", function (request, response) {
 			console.log(error);	
 		}
 	});
-			//response.success("Realizado!!!");
-			//response.success(a+"actual"+b.valueOf()+"parse"+ja.valueOf());
 });
